@@ -143,6 +143,41 @@ public class UserOrderE2ETest {
         System.out.println("✓ Complete E2E flow successful");
     }
 
+    @Test
+    @org.junit.jupiter.api.Order(7)
+    @DisplayName("7. Complete flow: Login and fetch orders via gRPC")
+    public void complete_login_and_fetch_orders_via_grpc_flow_should_work() {
+        String username = TestConfig.getTestUsername();
+        String password = TestConfig.getTestPassword();
+
+        LoginResponse loginResponse = authClient.login(username, password);
+        String token = loginResponse.token();
+
+        assertThat(token).isNotNull().isNotEmpty();
+        System.out.println("✓ Step 1: Login successful");
+
+        Response response = orderClient.getMyOrdersViaGrpcRaw(token);
+        response.then().statusCode(200);
+
+        List<Order> orders = orderClient.getMyOrdersViaGrpc(token);
+
+        assertThat(orders).isNotNull();
+        System.out.println("✓ Step 2: Orders fetched via gRPC successfully");
+
+        if (!orders.isEmpty()) {
+            Order firstOrder = orders.get(0);
+            assertThat(firstOrder.orderId()).isNotNull();
+            assertThat(firstOrder.clientId()).isNotNull();
+            assertThat(firstOrder.orderStatus()).isNotNull();
+
+            System.out.println("✓ Step 3: Order data structure validated");
+            System.out.println("First Order ID: " + firstOrder.orderId());
+            System.out.println("Order Status: " + firstOrder.orderStatus());
+        }
+
+        System.out.println("✓ Complete gRPC E2E flow successful");
+    }
+
     @AfterAll
     public static void tearDown() {
         System.out.println("\nE2E tests completed!");

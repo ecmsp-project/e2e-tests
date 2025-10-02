@@ -51,7 +51,29 @@ public class OrderClient {
             .statusCode(200)
             .extract()
             .response();
-        
+
         return response.as(Order.class);
+    }
+
+    public List<Order> getMyOrdersViaGrpc(String jwtToken) {
+        Response response = given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + jwtToken)
+            .when()
+            .get("/api/orders/me/grpc")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+
+        return Arrays.asList(response.as(Order[].class));
+    }
+
+    public Response getMyOrdersViaGrpcRaw(String jwtToken) {
+        return given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + jwtToken)
+            .when()
+            .get("/api/orders/me/grpc");
     }
 }
