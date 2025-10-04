@@ -78,11 +78,11 @@ public class UserOrderE2ETest {
             );
         }
 
-        Response response = orderClient.getMyOrdersRaw(jwtToken);
+        Response response = orderClient.getOrdersViaRestRaw(jwtToken);
 
         response.then().statusCode(200);
 
-        List<Order> orders = orderClient.getMyOrders(jwtToken);
+        List<Order> orders = orderClient.getOrdersViaRest(jwtToken);
         assertThat(orders).isNotNull();
 
         System.out.println("✓ Successfully fetched orders");
@@ -93,7 +93,7 @@ public class UserOrderE2ETest {
     @org.junit.jupiter.api.Order(4)
     @DisplayName("4. Authenticated request should fail without token")
     public void order_request_should_fail_without_token() {
-        Response response = orderClient.getMyOrdersRaw("");
+        Response response = orderClient.getOrdersViaRestRaw("");
 
         assertThat(response.getStatusCode()).isIn(401, 403);
 
@@ -124,7 +124,7 @@ public class UserOrderE2ETest {
         assertThat(token).isNotNull().isNotEmpty();
         System.out.println("✓ Step 1: Login successful");
 
-        List<Order> orders = orderClient.getMyOrders(token);
+        List<Order> orders = orderClient.getOrdersViaRest(token);
 
         assertThat(orders).isNotNull();
         System.out.println("✓ Step 2: Orders fetched successfully");
@@ -156,10 +156,10 @@ public class UserOrderE2ETest {
         assertThat(token).isNotNull().isNotEmpty();
         System.out.println("✓ Step 1: Login successful");
 
-        Response response = orderClient.getMyOrdersViaGrpcRaw(token);
+        Response response = orderClient.getOrdersRaw(token);
         response.then().statusCode(200);
 
-        List<Order> orders = orderClient.getMyOrdersViaGrpc(token);
+        List<Order> orders = orderClient.getOrders(token);
 
         assertThat(orders).isNotNull();
         System.out.println("✓ Step 2: Orders fetched via gRPC successfully");

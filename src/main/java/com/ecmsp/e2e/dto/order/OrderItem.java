@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 
 public record OrderItem(
     String itemId,
-    int quantity,
-    BigDecimal priceAtTimeOfOrder,
-    boolean isReturnable
+    int quantity
+//    BigDecimal priceAtTimeOfOrder,
+//    boolean isReturnable
 ) {
 }
