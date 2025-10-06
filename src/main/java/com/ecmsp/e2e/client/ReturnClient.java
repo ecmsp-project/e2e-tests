@@ -1,6 +1,7 @@
 package com.ecmsp.e2e.client;
 
 import com.ecmsp.e2e.config.TestConfig;
+import com.ecmsp.e2e.dto.returns.CreateReturnResponseDto;
 import com.ecmsp.e2e.dto.returns.ReturnOrder;
 import com.ecmsp.e2e.dto.returns.ReturnToCreate;
 import io.restassured.RestAssured;
@@ -20,7 +21,7 @@ public class ReturnClient {
         RestAssured.baseURI = gatewayUrl;
     }
 
-    public ReturnOrder createReturn(ReturnToCreate returnToCreate, String jwtToken) {
+    public CreateReturnResponseDto createReturn(ReturnToCreate returnToCreate, String jwtToken) {
         Response response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + jwtToken)
@@ -32,7 +33,7 @@ public class ReturnClient {
             .extract()
             .response();
 
-        return response.as(ReturnOrder.class);
+        return response.as(CreateReturnResponseDto.class);
     }
 
     public Response createReturnRaw(ReturnToCreate returnToCreate, String jwtToken) {
