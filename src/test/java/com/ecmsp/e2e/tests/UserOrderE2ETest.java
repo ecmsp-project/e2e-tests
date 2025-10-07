@@ -3,7 +3,7 @@ package com.ecmsp.e2e.tests;
 import com.ecmsp.e2e.client.AuthClient;
 import com.ecmsp.e2e.client.OrderClient;
 import com.ecmsp.e2e.config.TestConfig;
-import com.ecmsp.e2e.dto.order.Order;
+import com.ecmsp.e2e.dto.order.GetOrderResponseDto;
 import com.ecmsp.e2e.dto.login.LoginResponse;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
@@ -82,7 +82,7 @@ public class UserOrderE2ETest {
 
         response.then().statusCode(200);
 
-        List<Order> orders = orderClient.getOrdersViaRest(jwtToken);
+        List<GetOrderResponseDto> orders = orderClient.getOrdersViaRest(jwtToken);
         assertThat(orders).isNotNull();
 
         System.out.println("✓ Successfully fetched orders");
@@ -124,16 +124,17 @@ public class UserOrderE2ETest {
         assertThat(token).isNotNull().isNotEmpty();
         System.out.println("✓ Step 1: Login successful");
 
-        List<Order> orders = orderClient.getOrdersViaRest(token);
+        List<GetOrderResponseDto> orders = orderClient.getOrdersViaRest(token);
 
         assertThat(orders).isNotNull();
         System.out.println("✓ Step 2: Orders fetched successfully");
 
         if (!orders.isEmpty()) {
-            Order firstOrder = orders.get(0);
+            GetOrderResponseDto firstOrder = orders.get(0);
             assertThat(firstOrder.orderId()).isNotNull();
-            assertThat(firstOrder.clientId()).isNotNull();
             assertThat(firstOrder.orderStatus()).isNotNull();
+            assertThat(firstOrder.date()).isNotNull();
+            assertThat(firstOrder.items()).isNotNull();
 
             System.out.println("✓ Step 3: Order data structure validated");
             System.out.println("First Order ID: " + firstOrder.orderId());
@@ -159,16 +160,17 @@ public class UserOrderE2ETest {
         Response response = orderClient.getOrdersRaw(token);
         response.then().statusCode(200);
 
-        List<Order> orders = orderClient.getOrders(token);
+        List<GetOrderResponseDto> orders = orderClient.getOrders(token);
 
         assertThat(orders).isNotNull();
         System.out.println("✓ Step 2: Orders fetched via gRPC successfully");
 
         if (!orders.isEmpty()) {
-            Order firstOrder = orders.get(0);
+            GetOrderResponseDto firstOrder = orders.get(0);
             assertThat(firstOrder.orderId()).isNotNull();
-            assertThat(firstOrder.clientId()).isNotNull();
             assertThat(firstOrder.orderStatus()).isNotNull();
+            assertThat(firstOrder.date()).isNotNull();
+            assertThat(firstOrder.items()).isNotNull();
 
             System.out.println("✓ Step 3: Order data structure validated");
             System.out.println("First Order ID: " + firstOrder.orderId());

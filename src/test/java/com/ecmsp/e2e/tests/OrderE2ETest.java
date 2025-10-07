@@ -3,9 +3,9 @@ package com.ecmsp.e2e.tests;
 import com.ecmsp.e2e.client.AuthClient;
 import com.ecmsp.e2e.client.OrderClient;
 import com.ecmsp.e2e.config.TestConfig;
-import com.ecmsp.e2e.dto.order.Order;
-import com.ecmsp.e2e.dto.order.OrderItem;
-import com.ecmsp.e2e.dto.order.OrderStatusResponse;
+import com.ecmsp.e2e.dto.order.GetOrderResponseDto;
+import com.ecmsp.e2e.dto.order.GetOrderItemDetailsDto;
+import com.ecmsp.e2e.dto.order.GetOrderStatusResponseDto;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
 
@@ -39,15 +39,15 @@ public class OrderE2ETest {
         Response response = orderClient.getOrdersRaw(jwtToken);
         response.then().statusCode(200);
 
-        List<Order> orders = orderClient.getOrders(jwtToken);
+        List<GetOrderResponseDto> orders = orderClient.getOrders(jwtToken);
         assertThat(orders).isNotNull();
 
         if (!orders.isEmpty()) {
-            Order order = orders.get(0);
+            GetOrderResponseDto order = orders.get(0);
             assertThat(order.orderId()).isNotNull();
-            assertThat(order.clientId()).isNotNull();
             assertThat(order.orderStatus()).isNotNull();
             assertThat(order.date()).isNotNull();
+            assertThat(order.items()).isNotNull();
 
             System.out.println("✓ Orders fetched successfully. Count: " + orders.size());
         }
@@ -61,7 +61,7 @@ public class OrderE2ETest {
             TestConfig.getTestPassword()
         );
 
-        List<Order> orders = orderClient.getOrders(jwtToken);
+        List<GetOrderResponseDto> orders = orderClient.getOrders(jwtToken);
         assertThat(orders).isNotEmpty();
 
         String orderId = orders.get(0).orderId();
@@ -69,12 +69,12 @@ public class OrderE2ETest {
         Response response = orderClient.getOrderByIdRaw(orderId, jwtToken);
         response.then().statusCode(200);
 
-        Order order = orderClient.getOrderById(orderId, jwtToken);
+        GetOrderResponseDto order = orderClient.getOrderById(orderId, jwtToken);
         assertThat(order).isNotNull();
         assertThat(order.orderId()).isEqualTo(orderId);
-        assertThat(order.clientId()).isNotNull();
         assertThat(order.orderStatus()).isNotNull();
         assertThat(order.date()).isNotNull();
+        assertThat(order.items()).isNotNull();
 
         System.out.println("✓ Order fetched by ID: " + orderId);
     }
@@ -87,7 +87,7 @@ public class OrderE2ETest {
             TestConfig.getTestPassword()
         );
 
-        List<Order> orders = orderClient.getOrders(jwtToken);
+        List<GetOrderResponseDto> orders = orderClient.getOrders(jwtToken);
         assertThat(orders).isNotEmpty();
 
         String orderId = orders.get(0).orderId();
@@ -95,14 +95,17 @@ public class OrderE2ETest {
         Response response = orderClient.getOrderItemsRaw(orderId, jwtToken);
         response.then().statusCode(200);
 
-        List<OrderItem> items = orderClient.getOrderItems(orderId, jwtToken);
+        List<GetOrderItemDetailsDto> items = orderClient.getOrderItems(orderId, jwtToken);
         assertThat(items).isNotNull();
 
         if (!items.isEmpty()) {
-            OrderItem item = items.get(0);
+            GetOrderItemDetailsDto item = items.get(0);
             assertThat(item.itemId()).isNotNull();
+            assertThat(item.variantId()).isNotNull();
             assertThat(item.quantity()).isGreaterThan(0);
-//            assertThat(item.priceAtTimeOfOrder()).isNotNull();
+            assertThat(item.price()).isGreaterThanOrEqualTo(0);
+            assertThat(item.imageUrl()).isNotNull();
+            assertThat(item.description()).isNotNull();
 
             System.out.println("✓ Order items fetched. Count: " + items.size());
         }
@@ -116,7 +119,7 @@ public class OrderE2ETest {
             TestConfig.getTestPassword()
         );
 
-        List<Order> orders = orderClient.getOrders(jwtToken);
+        List<GetOrderResponseDto> orders = orderClient.getOrders(jwtToken);
         assertThat(orders).isNotEmpty();
 
         String orderId = orders.get(0).orderId();
@@ -124,8 +127,10 @@ public class OrderE2ETest {
         Response response = orderClient.getOrderStatusRaw(orderId, jwtToken);
         response.then().statusCode(200);
 
-        OrderStatusResponse status = orderClient.getOrderStatus(orderId, jwtToken);
+        GetOrderStatusResponseDto status = orderClient.getOrderStatus(orderId, jwtToken);
         assertThat(status).isNotNull();
+        assertThat(status.orderId()).isNotNull();
+        assertThat(status.orderStatus()).isNotNull();
 
         System.out.println("✓ Order status fetched: " + status);
     }

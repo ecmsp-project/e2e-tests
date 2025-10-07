@@ -1,9 +1,9 @@
 package com.ecmsp.e2e.client;
 
 import com.ecmsp.e2e.config.TestConfig;
-import com.ecmsp.e2e.dto.order.Order;
-import com.ecmsp.e2e.dto.order.OrderItem;
-import com.ecmsp.e2e.dto.order.OrderStatusResponse;
+import com.ecmsp.e2e.dto.order.GetOrderResponseDto;
+import com.ecmsp.e2e.dto.order.GetOrderItemDetailsDto;
+import com.ecmsp.e2e.dto.order.GetOrderStatusResponseDto;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -21,7 +21,7 @@ public class OrderClient {
         RestAssured.baseURI = gatewayUrl;
     }
     
-    public List<Order> getOrdersViaRest(String jwtToken) {
+    public List<GetOrderResponseDto> getOrdersViaRest(String jwtToken) {
         Response response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + jwtToken)
@@ -32,7 +32,7 @@ public class OrderClient {
             .extract()
             .response();
 
-        return Arrays.asList(response.as(Order[].class));
+        return Arrays.asList(response.as(GetOrderResponseDto[].class));
     }
     
     public Response getOrdersViaRestRaw(String jwtToken) {
@@ -43,7 +43,7 @@ public class OrderClient {
             .get("/api/orders");
     }
 
-    public List<Order> getOrders(String jwtToken) {
+    public List<GetOrderResponseDto> getOrders(String jwtToken) {
         Response response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + jwtToken)
@@ -54,7 +54,7 @@ public class OrderClient {
             .extract()
             .response();
 
-        return Arrays.asList(response.as(Order[].class));
+        return Arrays.asList(response.as(GetOrderResponseDto[].class));
     }
 
     public Response getOrdersRaw(String jwtToken) {
@@ -65,7 +65,7 @@ public class OrderClient {
             .get("/api/orders/grpc");
     }
 
-    public Order getOrderById(String orderId, String jwtToken) {
+    public GetOrderResponseDto getOrderById(String orderId, String jwtToken) {
         Response response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + jwtToken)
@@ -76,7 +76,7 @@ public class OrderClient {
             .extract()
             .response();
 
-        return response.as(Order.class);
+        return response.as(GetOrderResponseDto.class);
     }
 
     public Response getOrderByIdRaw(String orderId, String jwtToken) {
@@ -87,7 +87,7 @@ public class OrderClient {
             .get("/api/orders/grpc/" + orderId);
     }
 
-    public List<OrderItem> getOrderItems(String orderId, String jwtToken) {
+    public List<GetOrderItemDetailsDto> getOrderItems(String orderId, String jwtToken) {
         Response response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + jwtToken)
@@ -98,7 +98,7 @@ public class OrderClient {
             .extract()
             .response();
 
-        return Arrays.asList(response.as(OrderItem[].class));
+        return Arrays.asList(response.as(GetOrderItemDetailsDto[].class));
     }
 
     public Response getOrderItemsRaw(String orderId, String jwtToken) {
@@ -109,7 +109,7 @@ public class OrderClient {
             .get("/api/orders/grpc/" + orderId + "/items");
     }
 
-    public OrderStatusResponse getOrderStatus(String orderId, String jwtToken) {
+    public GetOrderStatusResponseDto getOrderStatus(String orderId, String jwtToken) {
         Response response = given()
             .contentType(ContentType.JSON)
             .header("Authorization", "Bearer " + jwtToken)
@@ -120,7 +120,7 @@ public class OrderClient {
             .extract()
             .response();
 
-        return response.as(OrderStatusResponse.class);
+        return response.as(GetOrderStatusResponseDto.class);
     }
 
     public Response getOrderStatusRaw(String orderId, String jwtToken) {

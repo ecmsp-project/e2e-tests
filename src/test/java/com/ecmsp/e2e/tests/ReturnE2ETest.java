@@ -4,7 +4,8 @@ import com.ecmsp.e2e.client.AuthClient;
 import com.ecmsp.e2e.client.OrderClient;
 import com.ecmsp.e2e.client.ReturnClient;
 import com.ecmsp.e2e.config.TestConfig;
-import com.ecmsp.e2e.dto.order.Order;
+import com.ecmsp.e2e.dto.order.GetOrderItemDetailsDto;
+import com.ecmsp.e2e.dto.order.GetOrderResponseDto;
 import com.ecmsp.e2e.dto.returns.CreateReturnResponseDto;
 import com.ecmsp.e2e.dto.returns.ItemToReturnDetails;
 import com.ecmsp.e2e.dto.returns.ReturnOrder;
@@ -17,10 +18,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-//TODO: use item.variantId after it'd be implement in OrderItem and schema definitons for now we use "" as
-// 1. gRPC proto fields are non-nullable by default - a string field in protobuf cannot be set to Java null
-// 2. Proto3 semantics - setting a null string to a proto builder will throw a NullPointerException
-
 
 @DisplayName("Return E2E Tests")
 public class ReturnE2ETest {
@@ -52,14 +49,25 @@ public class ReturnE2ETest {
         String jwtToken = getAuthToken();
 
         // Get user's orders
-        List<Order> orders = orderClient.getOrders(jwtToken);
+        List<GetOrderResponseDto> orders = orderClient.getOrders(jwtToken);
         assertThat(orders).isNotEmpty();
 
-        Order firstOrder = orders.get(0);
+        GetOrderResponseDto firstOrder = orders.get(0);
+        assertThat(firstOrder.orderId()).isNotNull();
+        assertThat(firstOrder.orderStatus()).isNotNull();
+        assertThat(firstOrder.date()).isNotNull();
         assertThat(firstOrder.items()).isNotEmpty();
 
         // Create return for first order
-        String itemId = firstOrder.items().get(0).itemId();
+        GetOrderItemDetailsDto firstItem = firstOrder.items().get(0);
+        assertThat(firstItem.itemId()).isNotNull();
+        assertThat(firstItem.variantId()).isNotNull();
+        assertThat(firstItem.quantity()).isGreaterThan(0);
+        assertThat(firstItem.price()).isGreaterThanOrEqualTo(0);
+        assertThat(firstItem.imageUrl()).isNotNull();
+        assertThat(firstItem.description()).isNotNull();
+
+        String itemId = firstItem.itemId();
 
         ItemToReturnDetails itemToReturn = new ItemToReturnDetails(
             itemId,
@@ -126,10 +134,13 @@ public class ReturnE2ETest {
         String jwtToken = getAuthToken();
 
         // First, create a return
-        List<Order> orders = orderClient.getOrders(jwtToken);
+        List<GetOrderResponseDto> orders = orderClient.getOrders(jwtToken);
         assertThat(orders).isNotEmpty();
 
-        Order firstOrder = orders.get(0);
+        GetOrderResponseDto firstOrder = orders.get(0);
+        assertThat(firstOrder.orderId()).isNotNull();
+        assertThat(firstOrder.orderStatus()).isNotNull();
+        assertThat(firstOrder.date()).isNotNull();
         assertThat(firstOrder.items()).isNotEmpty();
 
         String itemId = firstOrder.items().get(0).itemId();
@@ -222,11 +233,14 @@ public class ReturnE2ETest {
         System.out.println("✓ Step 1: Login successful");
 
         // Step 2: Get user's orders
-        List<Order> orders = orderClient.getOrders(jwtToken);
+        List<GetOrderResponseDto> orders = orderClient.getOrders(jwtToken);
         assertThat(orders).isNotEmpty();
         System.out.println("✓ Step 2: Orders fetched");
 
-        Order firstOrder = orders.get(0);
+        GetOrderResponseDto firstOrder = orders.get(0);
+        assertThat(firstOrder.orderId()).isNotNull();
+        assertThat(firstOrder.orderStatus()).isNotNull();
+        assertThat(firstOrder.date()).isNotNull();
         assertThat(firstOrder.items()).isNotEmpty();
 
         // Step 3: Create return
