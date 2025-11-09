@@ -229,6 +229,45 @@ public class OrderE2ETest {
 
     }
 
+    @Test
+    @DisplayName("Get all orders should return valid data with detailed validation")
+    public void get_all_orders_should_return_valid_data() {
+        String jwtToken = authClient.getJwtToken(
+            TestConfig.getTestUsername(),
+            TestConfig.getTestPassword()
+        );
+
+        Response response = orderClient.getAllOrdersRaw(jwtToken);
+        response.then().statusCode(200);
+
+        List<GetOrderResponseDto> allOrders = orderClient.getAllOrders(jwtToken);
+        assertThat(allOrders).isNotNull();
+
+        System.out.println("✓ All orders fetched. Count: " + allOrders.size());
+
+        if (!allOrders.isEmpty()) {
+            GetOrderResponseDto order = allOrders.get(0);
+            assertThat(order.orderId()).isNotNull();
+            assertThat(order.orderStatus()).isNotNull();
+            assertThat(order.date()).isNotNull();
+            assertThat(order.items()).isNotNull();
+
+            System.out.println("✓ Order structure validated");
+
+            if (!order.items().isEmpty()) {
+                GetOrderItemDetailsDto item = order.items().get(0);
+                assertThat(item.itemId()).isNotNull();
+                assertThat(item.variantId()).isNotNull();
+                assertThat(item.quantity()).isGreaterThan(0);
+                assertThat(item.price()).isGreaterThanOrEqualTo(0);
+                assertThat(item.imageUrl()).isNotNull();
+                assertThat(item.description()).isNotNull();
+
+                System.out.println("✓ Order item details validated. First order contains " + order.items().size() + " items");
+            }
+        }
+    }
+
     @AfterAll
     public static void tearDown() {
         System.out.println("\nOrder E2E tests completed!");

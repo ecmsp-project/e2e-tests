@@ -156,4 +156,26 @@ public class OrderClient {
             .when()
             .post("/api/orders/grpc");
     }
+
+    public List<GetOrderResponseDto> getAllOrders(String jwtToken) {
+        Response response = given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + jwtToken)
+            .when()
+            .get("/api/orders/grpc/all")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+
+        return Arrays.asList(response.as(GetOrderResponseDto[].class));
+    }
+
+    public Response getAllOrdersRaw(String jwtToken) {
+        return given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + jwtToken)
+            .when()
+            .get("/api/orders/grpc/all");
+    }
 }
