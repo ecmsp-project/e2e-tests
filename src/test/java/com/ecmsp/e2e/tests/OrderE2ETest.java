@@ -145,8 +145,50 @@ public class OrderE2ETest {
     }
 
     @Test
-    @DisplayName("Should create order successfully")
+    @DisplayName("Should create order successfully with valid data")
     public void should_create_order_successfully() {
+        // Step 1: Authenticate
+        String jwtToken = authClient.getJwtToken(
+            TestConfig.getTestUsername(),
+            TestConfig.getTestPassword()
+        );
+
+        // Step 2: Prepare request data with actual product data from database
+        CreateOrderItemDto item = new CreateOrderItemDto(
+            "82e3eecf-69e7-4465-878a-0a8b40a5f938",
+            "b1a7e8f0-42b1-4f59-b8e3-426655440002",
+            TEST_PRODUCT_NAME,
+            1,
+                1250.00,
+            TEST_IMAGE_URL,
+            TEST_DESCRIPTION,
+            true
+        );
+
+        CreateOrderRequestDto request = new CreateOrderRequestDto(
+            List.of(item)
+        );
+
+        // Step 3: Call raw method first to check status
+        Response response = orderClient.createOrderRaw(request, jwtToken);
+        response.then().statusCode(201); // Created successfully
+
+        // Step 4: Call typed method to get parsed response
+        CreateOrderResponseDto createOrderResponse = response.as(CreateOrderResponseDto.class);
+
+        // Step 5: Assertions
+        assertThat(createOrderResponse).isNotNull();
+        assertThat(createOrderResponse.isSuccess()).isTrue();
+        assertThat(createOrderResponse.orderId()).isNotNull();
+        assertThat(createOrderResponse.failedVariants()).isEmpty();
+
+        // Step 6: Logging
+        System.out.println("✓ Order created successfully with ID: " + createOrderResponse.orderId());
+    }
+
+    @Test
+    @DisplayName("Shouldn't create order as stock is insufficient")
+    public void should_not_create_order_as_stock_is_insufficient() {
         // Step 1: Authenticate
         String jwtToken = authClient.getJwtToken(
             TestConfig.getTestUsername(),
@@ -165,28 +207,26 @@ public class OrderE2ETest {
             true
         );
 
+
         CreateOrderRequestDto request = new CreateOrderRequestDto(
             List.of(item)
         );
 
         // Step 3: Call raw method first to check status
         Response response = orderClient.createOrderRaw(request, jwtToken);
-        response.then().statusCode(201);
+        response.then().statusCode(409); // Conflict due to insufficient stock
 
         // Step 4: Call typed method to get parsed response
-        CreateOrderResponseDto createOrderResponse = orderClient.createOrder(request, jwtToken);
+        CreateOrderResponseDto createOrderResponse = response.as(CreateOrderResponseDto.class);
 
         // Step 5: Assertions
         assertThat(createOrderResponse).isNotNull();
-        assertThat(createOrderResponse.isSuccess()).isTrue();
-        assertThat(createOrderResponse.orderId()).isNotNull().isNotEmpty();
-        assertThat(createOrderResponse.reservedVariantIds()).isNotNull();
-        assertThat(createOrderResponse.reservedVariantIds()).contains(TEST_VARIANT_ID);
+        assertThat(createOrderResponse.isSuccess()).isFalse();
+        assertThat(createOrderResponse.failedVariants()).isNotEmpty();
 
         // Step 6: Logging
-        System.out.println("✓ Order created successfully");
-        System.out.println("Order ID: " + createOrderResponse.orderId());
-        System.out.println("Reserved variants: " + createOrderResponse.reservedVariantIds());
+        System.out.println("✓ Order not created");
+
     }
 
     @AfterAll
