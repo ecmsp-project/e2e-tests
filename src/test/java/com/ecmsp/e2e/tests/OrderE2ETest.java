@@ -22,8 +22,8 @@ public class OrderE2ETest {
     private static AuthClient authClient;
     private static OrderClient orderClient;
 
-    private static final String TEST_ITEM_ID = "test-item-123";
-    private static final String TEST_VARIANT_ID = "test-variant-456";
+    private static final String TEST_ITEM_ID = "82e3eecf-69e7-4465-878a-0a8b40a5f938";
+    private static final String TEST_VARIANT_ID = "658a874b-c8cd-40ee-9cf6-6a801b8eb69a";
     private static final String TEST_PRODUCT_NAME = "Test Product";
     private static final String TEST_IMAGE_URL = "http://example.com/image.jpg";
     private static final String TEST_DESCRIPTION = "Test product description";
