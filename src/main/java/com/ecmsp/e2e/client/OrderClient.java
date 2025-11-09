@@ -1,6 +1,8 @@
 package com.ecmsp.e2e.client;
 
 import com.ecmsp.e2e.config.TestConfig;
+import com.ecmsp.e2e.dto.order.CreateOrderRequestDto;
+import com.ecmsp.e2e.dto.order.CreateOrderResponseDto;
 import com.ecmsp.e2e.dto.order.GetOrderResponseDto;
 import com.ecmsp.e2e.dto.order.GetOrderItemDetailsDto;
 import com.ecmsp.e2e.dto.order.GetOrderStatusResponseDto;
@@ -129,6 +131,30 @@ public class OrderClient {
             .header("Authorization", "Bearer " + jwtToken)
             .when()
             .get("/api/orders/grpc/" + orderId + "/status");
+    }
+
+    public CreateOrderResponseDto createOrder(CreateOrderRequestDto request, String jwtToken) {
+        Response response = given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + jwtToken)
+            .body(request)
+            .when()
+            .post("/api/orders/grpc")
+            .then()
+            .statusCode(201)
+            .extract()
+            .response();
+
+        return response.as(CreateOrderResponseDto.class);
+    }
+
+    public Response createOrderRaw(CreateOrderRequestDto request, String jwtToken) {
+        return given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + jwtToken)
+            .body(request)
+            .when()
+            .post("/api/orders/grpc");
     }
 
     public List<GetOrderResponseDto> getAllOrders(String jwtToken) {
